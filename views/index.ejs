@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediaMark - Media Bookmark Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6d28d9;
+            --secondary-color: #8b5cf6;
+            --background-light: #f8fafc;
+            --text-dark: #1e293b;
+            --border-color: #e2e8f0;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .form-container {
+            padding: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.1);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .form-row > div {
+            flex: 1;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: #5b21b6;
+            transform: translateY(-2px);
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        .bookmarks-container {
+            padding: 2rem;
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-btn {
+            background-color: var(--background-light);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .bookmark-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .bookmark-card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .bookmark-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .bookmark-content {
+            padding: 1.5rem;
+        }
+
+        .bookmark-platform {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .platform-youtube {
+            background-color: #ff0000;
+            color: white;
+        }
+
+        .platform-instagram {
+            background-color: #c13584;
+            color: white;
+        }
+
+        .platform-facebook {
+            background-color: #1877f2;
+            color: white;
+        }
+
+        .platform-tiktok {
+            background-color: #000000;
+            color: white;
+        }
+
+        .bookmark-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .bookmark-url {
+            font-size: 0.85rem;
+            color: #4b5563;
+            margin-bottom: 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .bookmark-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 1rem;
+        }
+
+        .bookmark-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background-color: #e2e8f0;
+        }
+
+        .action-btn.delete {
+            color: var(--danger-color);
+        }
+
+        .action-btn.edit {
+            color: var(--warning-color);
+        }
+
+        .action-btn.visit {
+            color: var(--success-color);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--success-color);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            transform: translateY(100px);
+            opacity: 0;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            vertical-align: middle;
+        }
+
+        .icon-sm {
+            width: 16px;
+            height: 16px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        @media (min-width: 640px) {
+            .bookmark-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 639px) {
+            .form-row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>MediaMark</h1>
+            <p>Save and organize links to your favorite social media content</p>
+        </header>
+
+        <div class="form-container">
+            <div class="form-group">
+                <label for="mediaUrl" class="form-label">Media URL</label>
+                <input type="url" id="mediaUrl" class="form-control" placeholder="https://www.youtube.com/watch?v=..." required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="mediaTitle" class="form-label">Title</label>
+                    <input type="text" id="mediaTitle" class="form-control" placeholder="Optional title for the bookmark">
+                </div>
+                <div class="form-group">
+                    <label for="mediaPlatform" class="form-label">Platform</label>
+                    <select id="mediaPlatform" class="form-control">
+                        <option value="youtube">YouTube</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="facebook">Facebook</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="mediaDescription" class="form-label">Notes</label>
+                <textarea id="mediaDescription" class="form-control" rows="2" placeholder="Optional notes about this content"></textarea>
+            </div>
+            <button id="saveBookmarkBtn" class="btn btn-block">Save Bookmark</button>
+        </div>
+
+        <div class="bookmarks-container">
+            <h2>Your Bookmarks</h2>
+            <div class="filter-options">
+                <button class="filter-btn active" data-platform="all">All</button>
+                <button class="filter-btn" data-platform="youtube">YouTube</button>
+                <button class="filter-btn" data-platform="instagram">Instagram</button>
+                <button class="filter-btn" data-platform="facebook">Facebook</button>
+                <button class="filter-btn" data-platform="tiktok">TikTok</button>
+            </div>
+            <div id="bookmarkList" class="bookmark-list">
+                <!-- Bookmarks will be added here dynamically -->
+                <div class="empty-state">
+                    <p>No bookmarks yet. Add your first one above!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Bookmark</h3>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editMediaUrl" class="form-label">Media URL</label>
+                    <input type="url" id="editMediaUrl" class="form-control" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editMediaTitle" class="form-label">Title</label>
+                        <input type="text" id="editMediaTitle" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="editMediaPlatform" class="form-label">Platform</label>
+                        <select id="editMediaPlatform" class="form-control">
+                            <option value="youtube">YouTube</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="facebook">Facebook</option>
+                            <option value="tiktok">TikTok</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="editMediaDescription" class="form-label">Notes</label>
+                    <textarea id="editMediaDescription" class="form-control" rows="2"></textarea>
+                </div>
+                <input type="hidden" id="editBookmarkId">
+            </div>
+            <div class="modal-footer">
+                <button id="cancelEditBtn" class="action-btn">Cancel</button>
+                <button id="saveEditBtn" class="btn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Bookmark saved successfully!</div>
+
+    <script>
+        class MediaBookmarkManager {
+            constructor() {
+                this.bookmarks = JSON.parse(localStorage.getItem('mediaBookmarks')) || [];
+                this.currentFilter = 'all';
+                this.editingId = null;
+                
+                // Initialize elements
+                this.initElements();
+                this.initEventListeners();
+                
+                // Render initial bookmarks
+                this.renderBookmarks();
+            }
+            
+            initElements() {
+                // Form elements
+                this.urlInput = document.getElementById('mediaUrl');
+                this.titleInput = document.getElementById('mediaTitle');
+                this.platformSelect = document.getElementById('mediaPlatform');
+                this.descriptionInput = document.getElementById('mediaDescription');
+                this.saveButton = document.getElementById('saveBookmarkBtn');
+                
+                // Bookmark list
+                this.bookmarkList = document.getElementById('bookmarkList');
+                
+                // Filter buttons
+                this.filterButtons = document.querySelectorAll('.filter-btn');
+                
+                // Toast
+                this.toast = document.getElementById('toast');
+                
+                // Modal elements
+                this.editModal = document.getElementById('editModal');
+                this.editUrlInput = document.getElementById('editMediaUrl');
+                this.editTitleInput = document.getElementById('editMediaTitle');
+                this.editPlatformSelect = document.getElementById('editMediaPlatform');
+                this.editDescriptionInput = document.getElementById('editMediaDescription');
+                this.editBookmarkId = document.getElementById('editBookmarkId');
+                this.cancelEditBtn = document.getElementById('cancelEditBtn');
+                this.saveEditBtn = document.getElementById('saveEditBtn');
+            }
+            
+            initEventListeners() {
+                // Save bookmark
+                this.saveButton.addEventListener('click', () => this.saveBookmark());
+                
+                // Filter bookmarks
+                this.filterButtons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        this.filterBookmarks(e.target.dataset.platform);
+                        this.filterButtons.forEach(btn => btn.classList.remove('active'));
+                        e.target.classList.add('active');
+                    });
+                });
+                
+                // Modal events
+                this.cancelEditBtn.addEventListener('click', () => this.closeEditModal());
+                this.saveEditBtn.addEventListener('click', () => this.saveEditChanges());
+                
+                // Auto-detect platform from URL
+                this.urlInput.addEventListener('blur', () => this.detectPlatform());
+            }
+            
+            detectPlatform() {
+                const url = this.urlInput.value.trim();
+                if (!url) return;
+                
+                try {
+                    const hostname = new URL(url).hostname;
+                    
+                    if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
+                        this.platformSelect.value = 'youtube';
+                    } else if (hostname.includes('instagram.com')) {
+                        this.platformSelect.value = 'instagram';
+                    } else if (hostname.includes('facebook.com') || hostname.includes('fb.com')) {
+                        this.platformSelect.value = 'facebook';
+                    } else if (hostname.includes('tiktok.com')) {
+                        this.platformSelect.value = 'tiktok';
+                    } else {
+                        this.platformSelect.value = 'other';
+                    }
+                } catch (e) {
+                    // Invalid URL, do nothing
+                }
+            }
+            
+            saveBookmark() {
+                const url = this.urlInput.value.trim();
+                
+                if (!url) {
+                    this.showToast('Please enter a valid URL', 'error');
+                    return;
+                }
+                
+                try {
+                    new URL(url);
+                } catch (e) {
+                    this.showToast('Please enter a valid URL', 'error');
+                    return;
+                }
+                
+                const title = this.titleInput.value.trim() || this.generateTitle(url);
+                const platform = this.platformSelect.value;
+                const description = this.descriptionInput.value.trim();
+                const date = new Date().toISOString();
+                
+                const bookmark = {
+                    id: Date.now().toString(),
+                    url,
+                    title,
+                    platform,
+                    description,
+                    createdAt: date
+                };
+                
+                this.bookmarks.unshift(bookmark);
+                this.saveToLocalStorage();
+                this.renderBookmarks();
+                this.resetForm();
+                this.showToast('Bookmark saved successfully!');
+            }
+            
+            generateTitle(url) {
+                try {
+                    const urlObj = new URL(url);
+                    const pathParts = urlObj.pathname.split('/').filter(p => p);
+                    
+                    if (pathParts.length > 0) {
+                        return pathParts[pathParts.length - 1].replace(/-/g, ' ');
+                    } else {
+                        return urlObj.hostname.replace('www.', '');
+                    }
+                } catch (e) {
+                    return 'Untitled Bookmark';
+                }
+            }
+            
+            renderBookmarks() {
+                if (this.bookmarks.length === 0) {
+                    this.bookmarkList.innerHTML = `
+                        <div class="empty-state">
+                            <p>No bookmarks yet. Add your first one above!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const filteredBookmarks = this.currentFilter === 'all' 
+                    ? this.bookmarks 
+                    : this.bookmarks.filter(b => b.platform === this.currentFilter);
+                
+                if (filteredBookmarks.length === 0) {
+                    this.bookmarkList.innerHTML = `
+                        <div class="empty-state">
+                            <p>No bookmarks found for this platform. Try a different filter or add new bookmarks.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                this.bookmarkList.innerHTML = filteredBookmarks.map(bookmark => this.createBookmarkCard(bookmark)).join('');
+                
+                // Add event listeners to buttons
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = e.target.closest('.bookmark-card').dataset.id;
+                        this.deleteBookmark(id);
+                    });
+                });
+                
+                document.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = e.target.closest('.bookmark-card').dataset.id;
+                        this.openEditModal(id);
+                    });
+                });
+            }
+            
+            createBookmarkCard(bookmark) {
+                const date = new Date(bookmark.createdAt).toLocaleDateString();
+                return `
+                    <div class="bookmark-card" data-id="${bookmark.id}">
+                        <div class="bookmark-content">
+                            <span class="bookmark-platform platform-${bookmark.platform}">${bookmark.platform}</span>
+                            <h3 class="bookmark-title">${bookmark.title}</h3>
+                            <div class="bookmark-url">${bookmark.url}</div>
+                            ${bookmark.description ? `<p>${bookmark.description}</p>` : ''}
+                            <div class="bookmark-meta">
+                                <span>Saved on ${date}</span>
+                            </div>
+                            <div class="bookmark-actions">
+                                <button class="action-btn edit edit-btn">
+                                    <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                    Edit
+                                </button>
+                                <button class="action-btn delete delete-btn">
+                                    <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                    Delete
+                                </button>
+                                <a href="${bookmark.url}" target="_blank" class="action-btn visit">
+                                    <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                    </svg>
+                                    Visit
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            deleteBookmark(id) {
+                this.bookmarks = this.bookmarks.filter(b => b.id !== id);
+                this.saveToLocalStorage();
+                this.renderBookmarks();
+                this.showToast('Bookmark deleted');
+            }
+            
+            filterBookmarks(platform) {
+                this.currentFilter = platform;
+                this.renderBookmarks();
+            }
+            
+            openEditModal(id) {
+                const bookmark = this.bookmarks.find(b => b.id === id);
+                if (!bookmark) return;
+                
+                this.editingId = id;
+                this.editUrlInput.value = bookmark.url;
+                this.editTitleInput.value = bookmark.title;
+                this.editPlatformSelect.value = bookmark.platform;
+                this.editDescriptionInput.value = bookmark.description || '';
+                this.editBookmarkId.value = id;
+                
+                this.editModal.style.display = 'flex';
+            }
+            
+            closeEditModal() {
+                this.editModal.style.display = 'none';
+            }
+            
+            saveEditChanges() {
+                const id = this.editBookmarkId.value;
+                const url = this.editUrlInput.value.trim();
+                
+                if (!url) {
+                    this.showToast('Please enter a valid URL', 'error');
+                    return;
+                }
+                
+                try {
+                    new URL(url);
+                } catch (e) {
+                    this.showToast('Please enter a valid URL', 'error');
+                    return;
+                }
+                
+                const title = this.editTitleInput.value.trim() || this.generateTitle(url);
+                const platform = this.editPlatformSelect.value;
+                const description = this.editDescriptionInput.value.trim();
+                
+                const index = this.bookmarks.findIndex(b => b.id === id);
+                if (index !== -1) {
+                    this.bookmarks[index] = {
+                        ...this.bookmarks[index],
+                        url,
+                        title,
+                        platform,
+                        description,
+                        updatedAt: new Date().toISOString()
+                    };
+                    
+                    this.saveToLocalStorage();
+                    this.renderBookmarks();
+                    this.closeEditModal();
+                    this.showToast('Bookmark updated successfully!');
+                }
+            }
+            
+            resetForm() {
+                this.urlInput.value = '';
+                this.titleInput.value = '';
+                this.descriptionInput.value = '';
+                // Keep the platform as is
+            }
+            
+            saveToLocalStorage() {
+                localStorage.setItem('mediaBookmarks', JSON.stringify(this.bookmarks));
+            }
+            
+            showToast(message, type = 'success') {
+                this.toast.textContent = message;
+                this.toast.className = 'toast show';
+                
+                if (type === 'error') {
+                    this.toast.style.backgroundColor = 'var(--danger-color)';
+                } else {
+                    this.toast.style.backgroundColor = 'var(--success-color)';
+                }
+                
+                setTimeout(() => {
+                    this.toast.className = 'toast';
+                }, 3000);
+            }
+        }
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            const app = new MediaBookmarkManager();
+        });
+    </script>
+</body>
+</html>
